@@ -10,8 +10,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@glamario/core-react-native": "^1.0.2",
     "react": "19.0.0",
-    "react-native": "0.78.1"
+    "react-native": "0.78.1",
+    "react-native-device-info": "^14.0.4",
+    "react-native-permissions": "^5.3.0",
+    "react-native-webview": "^13.13.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

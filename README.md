@@ -1,97 +1,160 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# GlamAR React Native Demo App
 
-# Getting Started
+## Overview
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+This is a React Native application that integrates a WebView to load the GlamAR SDK. The WebView requests camera permissions and interacts with the SDK for skin analysis and other AR-based functionalities.
 
-## Step 1: Start Metro
+## Features
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- Loads GlamAR SDK inside a WebView
+- Requests camera permissions on Android
+- Handles WebView messages to track events
+- Sends initialization data to the SDK
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Project Structure
 
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+```
+root
+├── App.tsx  # Main entry point of the app
+├── android/
+│   ├── app/
+│   │   ├── src/
+│   │   │   ├── main/
+│   │   │   │   ├── java/com/glam/MainActivity.java  # Handles WebView permissions
+│   │   │   │   ├── AndroidManifest.xml  # Permissions configuration
+│   ├── local.properties  # Android SDK path configuration
+├── package.json
+└── README.md
 ```
 
-## Step 2: Build and run your app
+## Setup and Installation
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+### Prerequisites
 
-### Android
+- Node.js
+- React Native CLI
+- Android Studio (for Android development)
 
-```sh
-# Using npm
-npm run android
+### Installation Steps
 
-# OR using Yarn
-yarn android
+1. Install dependencies:
+   ```sh
+   npm install
+   ```
+2. Configure the Android SDK path:
+   - Open `android/local.properties`
+   - Replace the username in the following line with your own:
+     ```
+     sdk.dir = /users/YOUR_USERNAME/library/android/sdk
+     ```
+3. Ensure required permissions are added in `AndroidManifest.xml`:
+   ```xml
+   <uses-permission android:name="android.permission.CAMERA"/>
+   <uses-feature android:name="android.hardware.camera" android:required="true"/>
+   ```
+4. Start the Metro bundler:
+   ```sh
+   npx react-native start
+   ```
+5. Build and run the app on Android:
+   ```sh
+   npx react-native run-android
+   ```
+
+## WebView Integration
+
+The WebView loads the GlamAR SDK and communicates via `window.postMessage`. The SDK events are handled in `onMessage`.
+
+### Camera Permission Handling
+
+- On Android, camera permission is requested using `PermissionsAndroid`.
+- In `MainActivity.java`, `onPermissionRequest` grants camera access for WebView.
+
+### Initialization Payload
+
+Initialize the SDK:
+
+```js
+GlamAr.init({
+  apiKey: 'Your_API_Key',
+  platform: 'react_native', //required when using react native
+});
 ```
 
-### iOS
+### Events Handling
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+To Listen the SDK Events.
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+```js
+const photoLoadedSubscription = GlamAr.on('photo-loaded', (data: any) => {
+  console.log('Photo loaded:', data);
+});
 
-```sh
-bundle install
+const loadedSubscription = GlamAr.on('loaded', (data: any) => {
+  console.log('glamar loaded', data);
+});
+
+// 3) Cleanup on unmount
+return () => {
+  // NativeEventEmitter returns an EmitterSubscription with remove()
+  photoLoadedSubscription?.remove?.();
+  loadedSubscription?.remove?.();
+};
 ```
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
-```
+## 📡 API Reference
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+| Method                             | Description                                      |
+| ---------------------------------- | ------------------------------------------------ |
+| `GlamAr.init(config)`              | Initializes the SDK                              |
+| `GlamAr.applySku(skuId)`           | Applies a specific SKU                           |
+| `GlamAr.applyByCategory(category)` | Applies the first SKU from a category            |
+| `GlamAr.snapshot()`                | Captures a snapshot (fires `photo-loaded` event) |
+| `GlamAr.reset()`                   | Clears current applied items                     |
+| `GlamAr.open()` / `close()`        | Opens or closes the live preview mode            |
+| `GlamAr.on(event, cb)`             | Registers event listeners                        |
 
-```sh
-# Using npm
-npm run ios
+---
 
-# OR using Yarn
-yarn ios
-```
+## 🔔 Supported Events
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+| Event                  | Description                  |
+| ---------------------- | ---------------------------- |
+| `loaded`               | SDK initialized              |
+| `opened`, `closed`     | Widget opened or closed      |
+| `photo-loaded`         | Snapshot captured            |
+| `camera-opened`        | Camera successfully accessed |
+| `camera-closed`        | Camera stopped               |
+| `camera-failed`        | Error accessing camera       |
+| `subscription-invalid` | API key expired or invalid   |
+| `skin-analysis`        | Skin analysis data received  |
+| `error`                | Any error from SDK           |
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+---
 
-## Step 3: Modify your app
+Detailed documentation available at https://www.glamar.io/docs/
 
-Now that you have successfully run the app, let's make changes!
+## Troubleshooting
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+### WebView Not Loading
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+- Ensure the device has an active internet connection.
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+### Camera Permission Issues
 
-## Congratulations! :tada:
+- Verify that camera permission is granted in Android settings.
+- Ensure `onPermissionRequest` in `MainActivity.java` correctly grants camera permissions.
 
-You've successfully run and modified your React Native App. :partying_face:
+### WebView Communication Not Working
 
-### Now what?
+- Use `console.log(event.nativeEvent.data)` inside `handleMessage` to debug messages received from the WebView.
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+## Contributors
 
-# Troubleshooting
+- **Your Name** (Project Maintainer)
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+## License
 
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+This project is licensed under [Your License].
