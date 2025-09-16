@@ -77,7 +77,13 @@ Initialize the SDK:
 ```js
 GlamAr.init({
   apiKey: 'Your_API_Key',
-  platform: 'react_native', //required when using react native
+  platform: 'react_native',
+  category: 'skinanalysis',
+  configuration: {
+    skinAnalysis: {
+      appId: 'Your_Skinanalysis_app_ID',
+    },
+  },
 });
 ```
 
@@ -106,15 +112,12 @@ return () => {
 
 ## 📡 API Reference
 
-| Method                             | Description                                      |
-| ---------------------------------- | ------------------------------------------------ |
-| `GlamAr.init(config)`              | Initializes the SDK                              |
-| `GlamAr.applySku(skuId)`           | Applies a specific SKU                           |
-| `GlamAr.applyByCategory(category)` | Applies the first SKU from a category            |
-| `GlamAr.snapshot()`                | Captures a snapshot (fires `photo-loaded` event) |
-| `GlamAr.reset()`                   | Clears current applied items                     |
-| `GlamAr.open()` / `close()`        | Opens or closes the live preview mode            |
-| `GlamAr.on(event, cb)`             | Registers event listeners                        |
+| Method                      | Description                           |
+| --------------------------- | ------------------------------------- |
+| `GlamAr.init(config)`       | Initializes the SDK                   |
+| `GlamAr.reset()`            | Clears current applied items          |
+| `GlamAr.open()` / `close()` | Opens or closes the live preview mode |
+| `GlamAr.on(event, cb)`      | Registers event listeners             |
 
 ---
 
@@ -124,7 +127,6 @@ return () => {
 | ---------------------- | ---------------------------- |
 | `loaded`               | SDK initialized              |
 | `opened`, `closed`     | Widget opened or closed      |
-| `photo-loaded`         | Snapshot captured            |
 | `camera-opened`        | Camera successfully accessed |
 | `camera-closed`        | Camera stopped               |
 | `camera-failed`        | Error accessing camera       |

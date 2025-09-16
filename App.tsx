@@ -6,9 +6,14 @@ export default function App() {
   useEffect(() => {
     // 1) Init once
     GlamAr.init({
-      apiKey: '43ada67e-0ec9-471b-b46f-78fedac9cbf5',
+      apiKey: 'Your_API_Key',
       platform: 'react_native',
-      parentDomain: 'com.glam',
+      category: 'skinanalysis',
+      configuration: {
+        skinAnalysis: {
+          appId: 'Your_Skinanalysis_app_ID',
+        },
+      },
     });
 
     // 2) Example event listener

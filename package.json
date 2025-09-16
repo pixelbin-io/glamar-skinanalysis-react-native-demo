@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@glamario/core-react-native": "^1.0.2",
+    "@glamario/core-react-native": "^1.0.3",
     "react": "19.0.0",
     "react-native": "0.78.1",
     "react-native-device-info": "^14.0.4",
